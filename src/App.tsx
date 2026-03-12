@@ -25,10 +25,62 @@ import { Visualizer } from './components/Visualizer';
 export default function App() {
   const [selectedCategory, setSelectedCategory] = useState<DSCategory | 'all'>('all');
   const [selectedDS, setSelectedDS] = useState<DataStructure | null>(null);
+  const [elementsMap, setElementsMap] = useState<Record<string, number[]>>({
+    array: [10, 20, 30, 40],
+    stack: [1, 2, 3],
+    queue: [100, 200, 300],
+    'linked-list': [5, 10, 15],
+    tree: [50, 25, 75],
+    graph: [1, 2, 3]
+  });
+  const [inputValue, setInputValue] = useState('');
 
   const filteredDS = selectedCategory === 'all' 
     ? DATA_STRUCTURES 
     : DATA_STRUCTURES.filter(ds => ds.category === selectedCategory);
+
+  const currentElements = selectedDS ? elementsMap[selectedDS.id] || [] : [];
+
+  const handleAdd = () => {
+    if (!selectedDS || inputValue === '') return;
+    const num = parseInt(inputValue);
+    if (isNaN(num)) return;
+
+    setElementsMap(prev => {
+      const current = prev[selectedDS.id] || [];
+      // Logic based on DS type
+      let next = [...current];
+      if (selectedDS.id === 'stack') {
+        next.push(num); // Push to top
+      } else if (selectedDS.id === 'queue') {
+        next.push(num); // Enqueue to rear
+      } else {
+        next.push(num); // Default append
+      }
+      return { ...prev, [selectedDS.id]: next };
+    });
+    setInputValue('');
+  };
+
+  const handleRemove = () => {
+    if (!selectedDS) return;
+    setElementsMap(prev => {
+      const current = prev[selectedDS.id] || [];
+      if (current.length === 0) return prev;
+      
+      let next = [...current];
+      if (selectedDS.id === 'stack') {
+        next.pop(); // Pop from top
+      } else if (selectedDS.id === 'queue') {
+        next.shift(); // Dequeue from front
+      } else if (selectedDS.id === 'array' || selectedDS.id === 'linked-list') {
+        next.pop(); // Remove last
+      } else {
+        next.pop();
+      }
+      return { ...prev, [selectedDS.id]: next };
+    });
+  };
 
   const getIcon = (type: string) => {
     switch (type) {
@@ -188,9 +240,34 @@ export default function App() {
 
                     <div className="space-y-6">
                       <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-zinc-400 mb-4">
-                        <Layers className="w-3 h-3" /> ภาพจำลอง (Visualization)
+                        <Layers className="w-3 h-3" /> ทดลองใช้งาน (Interactive Playground)
                       </h4>
-                      <Visualizer type={selectedDS.visualType} />
+                      
+                      <div className="flex gap-2 mb-4">
+                        <input
+                          type="number"
+                          value={inputValue}
+                          onChange={(e) => setInputValue(e.target.value)}
+                          placeholder="ใส่ตัวเลข..."
+                          className="flex-1 px-4 py-2 bg-zinc-50 border border-zinc-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900 transition-all"
+                          onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
+                        />
+                        <button
+                          onClick={handleAdd}
+                          className="px-4 py-2 bg-zinc-900 text-white rounded-xl text-xs font-bold hover:bg-zinc-800 transition-colors"
+                        >
+                          เพิ่ม (Add)
+                        </button>
+                        <button
+                          onClick={handleRemove}
+                          className="px-4 py-2 bg-white border border-zinc-200 text-zinc-900 rounded-xl text-xs font-bold hover:bg-zinc-50 transition-colors"
+                        >
+                          ลบ (Remove)
+                        </button>
+                      </div>
+
+                      <Visualizer type={selectedDS.visualType} elements={currentElements} />
+                      
                       <div className="p-4 bg-zinc-50 rounded-xl border border-zinc-100">
                         <p className="text-[10px] text-zinc-400 font-mono uppercase mb-2">Technical Specs</p>
                         <div className="flex flex-wrap gap-2">

@@ -3,129 +3,143 @@ import { motion } from 'motion/react';
 
 interface VisualizerProps {
   type: 'array' | 'stack' | 'queue' | 'linked-list' | 'tree' | 'graph';
+  elements: number[];
 }
 
-export const Visualizer: React.FC<VisualizerProps> = ({ type }) => {
+export const Visualizer: React.FC<VisualizerProps> = ({ type, elements }) => {
   const renderVisual = () => {
     switch (type) {
       case 'array':
         return (
-          <div className="flex gap-1">
-            {[0, 1, 2, 3, 4].map((i) => (
+          <div className="flex flex-wrap gap-1 p-4 justify-center">
+            {elements.map((val, i) => (
               <motion.div
-                key={i}
+                key={`${i}-${val}`}
+                layout
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: i * 0.1 }}
-                className="w-10 h-10 border-2 border-zinc-800 flex items-center justify-center font-mono text-xs bg-white"
+                className="w-12 h-12 border-2 border-zinc-800 flex flex-col items-center justify-center bg-white shadow-sm"
               >
-                {i}
+                <span className="text-xs font-bold">{val}</span>
+                <span className="text-[8px] text-zinc-400 font-mono mt-1">[{i}]</span>
               </motion.div>
             ))}
+            {elements.length === 0 && <div className="text-zinc-400 text-xs italic">Empty Array</div>}
           </div>
         );
       case 'stack':
         return (
-          <div className="flex flex-col-reverse gap-1 border-b-4 border-x-2 border-zinc-800 p-1 w-16">
-            {[0, 1, 2].map((i) => (
+          <div className="flex flex-col-reverse gap-1 border-b-4 border-x-4 border-zinc-800 p-2 w-24 min-h-[120px] justify-start">
+            {elements.map((val, i) => (
               <motion.div
-                key={i}
-                initial={{ y: -20, opacity: 0 }}
+                key={`${i}-${val}`}
+                layout
+                initial={{ y: -50, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: i * 0.2 }}
-                className="w-full h-8 bg-zinc-800 text-white flex items-center justify-center text-xs"
+                className="w-full h-10 bg-zinc-800 text-white flex items-center justify-center text-sm font-bold shadow-inner"
               >
-                {i === 2 ? 'TOP' : i}
+                {val}
+                {i === elements.length - 1 && <span className="absolute -right-12 text-[10px] text-zinc-900 font-bold">TOP</span>}
               </motion.div>
             ))}
+            {elements.length === 0 && <div className="text-zinc-400 text-[10px] text-center mt-auto">EMPTY STACK</div>}
           </div>
         );
       case 'queue':
         return (
-          <div className="flex gap-1 items-center border-y-2 border-zinc-800 p-1">
-            <span className="text-[10px] font-bold rotate-90">FRONT</span>
-            {[0, 1, 2, 3].map((i) => (
-              <motion.div
-                key={i}
-                initial={{ x: 20, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: i * 0.1 }}
-                className="w-8 h-10 bg-zinc-200 border border-zinc-400 flex items-center justify-center text-xs"
-              >
-                {i}
-              </motion.div>
-            ))}
-            <span className="text-[10px] font-bold rotate-90">REAR</span>
+          <div className="flex gap-1 items-center border-y-4 border-zinc-800 p-2 min-w-[200px] justify-center">
+            <div className="flex flex-col items-center mr-2">
+              <span className="text-[10px] font-bold text-zinc-400 uppercase">Front</span>
+            </div>
+            <div className="flex gap-1">
+              {elements.map((val, i) => (
+                <motion.div
+                  key={`${i}-${val}`}
+                  layout
+                  initial={{ x: 50, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  className="w-10 h-12 bg-zinc-200 border-2 border-zinc-400 flex items-center justify-center text-sm font-bold"
+                >
+                  {val}
+                </motion.div>
+              ))}
+            </div>
+            <div className="flex flex-col items-center ml-2">
+              <span className="text-[10px] font-bold text-zinc-400 uppercase">Rear</span>
+            </div>
+            {elements.length === 0 && <div className="text-zinc-400 text-xs italic">Empty Queue</div>}
           </div>
         );
       case 'linked-list':
         return (
-          <div className="flex items-center gap-2">
-            {[0, 1, 2].map((i) => (
-              <React.Fragment key={i}>
+          <div className="flex flex-wrap items-center gap-y-4 gap-x-0 p-4 justify-center">
+            {elements.map((val, i) => (
+              <React.Fragment key={`${i}-${val}`}>
                 <motion.div
-                  initial={{ x: -10, opacity: 0 }}
+                  layout
+                  initial={{ x: -20, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
-                  transition={{ delay: i * 0.2 }}
-                  className="flex border border-zinc-800"
+                  className="flex border-2 border-zinc-800 shadow-sm"
                 >
-                  <div className="w-8 h-8 bg-white flex items-center justify-center text-xs border-r border-zinc-800">{i}</div>
-                  <div className="w-4 h-8 bg-zinc-100 flex items-center justify-center">
-                    <div className="w-1 h-1 bg-zinc-800 rounded-full" />
+                  <div className="w-10 h-10 bg-white flex items-center justify-center text-sm font-bold border-r-2 border-zinc-800">{val}</div>
+                  <div className="w-5 h-10 bg-zinc-100 flex items-center justify-center">
+                    <div className="w-1.5 h-1.5 bg-zinc-800 rounded-full" />
                   </div>
                 </motion.div>
-                {i < 2 && (
+                {i < elements.length - 1 ? (
                   <motion.div
                     initial={{ width: 0 }}
-                    animate={{ width: 16 }}
-                    transition={{ delay: i * 0.2 + 0.1 }}
+                    animate={{ width: 24 }}
                     className="h-[2px] bg-zinc-800 relative"
                   >
-                    <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-1 border-t-2 border-r-2 border-zinc-800 rotate-45" />
+                    <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 border-t-2 border-r-2 border-zinc-800 rotate-45" />
                   </motion.div>
+                ) : (
+                  <div className="w-8 flex items-center justify-center text-[10px] font-mono text-zinc-400 ml-2">NULL</div>
                 )}
               </React.Fragment>
             ))}
+            {elements.length === 0 && <div className="text-zinc-400 text-xs italic">Empty List</div>}
           </div>
         );
       case 'tree':
+        // Simplified Binary Tree visualization for dynamic elements
         return (
-          <div className="relative w-32 h-32 flex flex-col items-center">
-            <motion.div 
-              initial={{ scale: 0 }} animate={{ scale: 1 }}
-              className="w-8 h-8 rounded-full border-2 border-zinc-800 flex items-center justify-center text-xs bg-white z-10"
-            >
-              R
-            </motion.div>
-            <div className="flex gap-8 mt-4 relative">
-              <div className="absolute top-[-16px] left-1/2 w-12 h-[2px] bg-zinc-800 -translate-x-1/2 rotate-[30deg] origin-left" />
-              <div className="absolute top-[-16px] right-1/2 w-12 h-[2px] bg-zinc-800 translate-x-1/2 -rotate-[30deg] origin-right" />
-              <motion.div 
-                initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.2 }}
-                className="w-6 h-6 rounded-full border border-zinc-800 flex items-center justify-center text-[10px] bg-white z-10"
-              >
-                L
-              </motion.div>
-              <motion.div 
-                initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.3 }}
-                className="w-6 h-6 rounded-full border border-zinc-800 flex items-center justify-center text-[10px] bg-white z-10"
-              >
-                R
-              </motion.div>
+          <div className="flex flex-col items-center gap-4 p-4">
+            <div className="text-[10px] text-zinc-400 uppercase font-mono mb-2">Level Order Representation</div>
+            <div className="flex flex-wrap gap-4 justify-center">
+              {elements.map((val, i) => (
+                <motion.div
+                  key={`${i}-${val}`}
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="w-10 h-10 rounded-full border-2 border-zinc-800 flex items-center justify-center text-sm font-bold bg-white shadow-sm relative"
+                >
+                  {val}
+                  <span className="absolute -bottom-4 text-[8px] text-zinc-400">Node {i}</span>
+                </motion.div>
+              ))}
             </div>
+            {elements.length === 0 && <div className="text-zinc-400 text-xs italic">Empty Tree</div>}
           </div>
         );
       case 'graph':
         return (
-          <div className="relative w-32 h-32">
-             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute top-2 left-1/2 -translate-x-1/2 w-6 h-6 rounded-full border border-zinc-800 bg-white z-10 flex items-center justify-center text-[10px]">A</motion.div>
-             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="absolute bottom-2 left-2 w-6 h-6 rounded-full border border-zinc-800 bg-white z-10 flex items-center justify-center text-[10px]">B</motion.div>
-             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="absolute bottom-2 right-2 w-6 h-6 rounded-full border border-zinc-800 bg-white z-10 flex items-center justify-center text-[10px]">C</motion.div>
-             <svg className="absolute inset-0 w-full h-full pointer-events-none">
-                <line x1="50%" y1="15%" x2="15%" y2="85%" stroke="black" strokeWidth="1" />
-                <line x1="50%" y1="15%" x2="85%" y2="85%" stroke="black" strokeWidth="1" />
-                <line x1="15%" y1="85%" x2="85%" y2="85%" stroke="black" strokeWidth="1" />
-             </svg>
+          <div className="flex flex-wrap gap-4 p-4 justify-center">
+            {elements.map((val, i) => (
+              <motion.div
+                key={`${i}-${val}`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="w-12 h-12 rounded-lg border-2 border-zinc-800 bg-white flex items-center justify-center text-sm font-bold shadow-sm relative"
+              >
+                {val}
+                {i > 0 && (
+                  <div className="absolute -left-4 top-1/2 w-4 h-[2px] bg-zinc-300 -z-10" />
+                )}
+              </motion.div>
+            ))}
+            {elements.length === 0 && <div className="text-zinc-400 text-xs italic">Empty Graph</div>}
           </div>
         );
       default:
